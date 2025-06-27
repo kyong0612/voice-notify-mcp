@@ -1,0 +1,17 @@
+{
+  "name": "voice-notify",
+  "version": "1.0.0",
+  "description": "Voice notification MCP server for macOS with autonomous AI notifications",
+  "mcpServers": {
+    "voice-notify": {
+      "command": "go",
+      "args": ["run", "github.com/kyong0612/voice-notify-mcp@latest"],
+      "env": {
+        "VOICE_NOTIFY_DEFAULT_LANGUAGE": "en",
+        "VOICE_NOTIFY_AUTO_DETECT_LANGUAGE": "true",
+        "VOICE_NOTIFY_AUTO_NOTIFY": "true",
+        "VOICE_NOTIFY_MIN_TASK_DURATION": "3"
+      }
+    }
+  }
+}
