@@ -55,14 +55,7 @@ Add to your MCP server configuration:
 {
   "voice-notify": {
     "command": "go",
-    "args": ["run", "github.com/kyong0612/voice-notify-mcp@latest"],
-    "env": {
-      "VOICE_NOTIFY_DEFAULT_VOICE": "Samantha",
-      "VOICE_NOTIFY_DEFAULT_LANGUAGE": "en",
-      "VOICE_NOTIFY_AUTO_NOTIFY": "true",
-      "VOICE_NOTIFY_MIN_TASK_DURATION": "3",
-      "VOICE_NOTIFY_QUIET_HOURS": "22:00-07:00"
-    }
+    "args": ["run", "github.com/kyong0612/voice-notify-mcp@latest"]
   }
 }
 ```
@@ -123,18 +116,44 @@ Common voices include:
 
 ## Troubleshooting
 
+### Debug Mode
+Enable debug mode to see detailed logs:
+
+```json
+{
+  "voice-notify": {
+    "command": "go",
+    "args": ["run", "github.com/kyong0612/voice-notify-mcp@latest"],
+    "env": {
+      "VOICE_NOTIFY_DEBUG": "true"
+    }
+  }
+}
+```
+
+Debug logs include:
+- Environment configuration at startup
+- MCP request/response details  
+- Voice selection process
+- Language detection results
+- Rate limiting decisions
+- Command execution details
+
 ### No voice output
 - Ensure your Mac's volume is not muted
 - Check if the specified voice is installed
 - Verify the `say` command works: `say "test"`
+- Enable debug mode to see detailed error messages
 
 ### Voice not found
 - The server will fall back to the system default voice
 - Install additional voices in System Preferences → Accessibility → Spoken Content
+- Use debug mode to see which voices are available
 
 ### Notifications during quiet hours
 - Check your `VOICE_NOTIFY_QUIET_HOURS` setting
 - Format should be "HH:MM-HH:MM" (24-hour format)
+- Debug mode will show quiet hour calculations
 
 ## Development
 
