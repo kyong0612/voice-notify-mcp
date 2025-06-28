@@ -49,7 +49,16 @@ go run main.go
 
 ### Claude Code / Cursor / Windsurf
 
-Add to your MCP server configuration:
+It's recommended to add the server using the `claude` command-line tool.
+
+Run the following command in your terminal:
+```bash
+claude mcp add voice-notify go run github.com/kyong0612/voice-notify-mcp@latest
+```
+
+This will register the server under the name `voice-notify`.
+
+Alternatively, you can manually add the following to your MCP server configuration file (e.g., `.claude.json` or `.mcp.json`):
 
 ```json
 {
@@ -75,12 +84,18 @@ Add to your MCP server configuration:
 
 ### Autonomous Notifications
 
-The AI will automatically notify you in situations like:
+The AI is designed to use voice notifications autonomously to keep you informed without you needing to constantly check its progress. Here are some scenarios where you can expect a notification:
 
-- Long-running task completions (> 3 seconds)
-- When user approval or input is needed
-- Error occurrences
-- Important milestones in multi-step processes
+- **Long-running task completions**: When tasks like builds, tests, deployments, file downloads, or data analysis take more than a few seconds, the AI will notify you upon completion.
+  - *Voice: "Build complete."*
+- **User input required**: If the AI needs your approval, input, or a decision to proceed, it will alert you.
+  - *Voice: "Approval required. Shall I proceed?"*
+- **Errors or issues**: You'll be immediately notified if a process fails or an important warning occurs.
+  - *Voice: "Deployment failed. Please check the logs."*
+- **Key milestones**: For multi-step tasks, the AI will announce when it reaches an important checkpoint.
+  - *Voice: "Staging deployment complete. Ready for final review."*
+
+The AI may also proactively ask if you'd like a voice notification for a long-running task it's about to start.
 
 ### Manual Notifications
 
