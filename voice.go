@@ -39,19 +39,24 @@ func NewVoiceSystem() *VoiceSystem {
 
 // refreshVoices updates the list of available voices
 func (vs *VoiceSystem) refreshVoices() error {
+	defer debugMeasureTime("refreshVoices")()
+	
 	vs.mu.Lock()
 	defer vs.mu.Unlock()
 
 	// Run 'say -v ?' command to get available voices
 	cmd := exec.Command("say", "-v", "?")
+	debugLogVoiceCommand("say", []string{"-v", "?"}, "", nil)
 	output, err := cmd.Output()
 	if err != nil {
+		debugLog("Failed to get voice list: %v", err)
 		return fmt.Errorf("failed to get voices: %w", err)
 	}
 
 	// Parse output
 	// Format: "Name             Language         Sample"
 	vs.availableVoices = make(map[string]VoiceInfo)
+	debugLog("Parsing voice list output (%d bytes)", len(output))
 	lines := strings.Split(string(output), "\n")
 	
 	for _, line := range lines {
@@ -78,6 +83,7 @@ func (vs *VoiceSystem) refreshVoices() error {
 	}
 
 	vs.lastUpdate = time.Now()
+	debugLog("Loaded %d voices", len(vs.availableVoices))
 	return nil
 }
 
@@ -89,27 +95,34 @@ func (vs *VoiceSystem) SelectVoice(requestedVoice, language string) string {
 	// 1. If specific voice is requested and available, use it
 	if requestedVoice != "" {
 		if _, exists := vs.availableVoices[requestedVoice]; exists {
+			debugLogVoiceSelection(requestedVoice, language, requestedVoice, false)
 			return requestedVoice
 		}
+		debugLog("Requested voice '%s' not available", requestedVoice)
 	}
 
 	// 2. If language is specified, find a voice for that language
 	if language != "" {
 		for name, info := range vs.availableVoices {
 			if info.Language == language {
+				debugLogVoiceSelection(requestedVoice, language, name, true)
 				return name
 			}
 		}
+		debugLog("No voice found for language '%s'", language)
 	}
 
 	// 3. Use default voice if set and available
 	if vs.defaultVoice != "" {
 		if _, exists := vs.availableVoices[vs.defaultVoice]; exists {
+			debugLogVoiceSelection(requestedVoice, language, vs.defaultVoice, true)
 			return vs.defaultVoice
 		}
+		debugLog("Default voice '%s' not available", vs.defaultVoice)
 	}
 
 	// 4. Use system default (empty string means use system default)
+	debugLogVoiceSelection(requestedVoice, language, "", true)
 	return ""
 }
 
@@ -146,8 +159,11 @@ func (vs *VoiceSystem) Speak(message, voice, priority string) error {
 	var stderr bytes.Buffer
 	cmd.Stderr = &stderr
 	
+	debugLogVoiceCommand("say", args, "", nil)
 	err := cmd.Run()
 	if err != nil {
+		errMsg := fmt.Sprintf("say command failed: %v, stderr: %s", err, stderr.String())
+		debugLogVoiceCommand("say", args, "", fmt.Errorf("%s", errMsg))
 		return fmt.Errorf("say command failed: %w, stderr: %s", err, stderr.String())
 	}
 	

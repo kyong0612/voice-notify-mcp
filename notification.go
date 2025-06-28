@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"strconv"
 	"strings"
 	"sync"
@@ -33,7 +34,15 @@ func NewNotificationManager() *NotificationManager {
 	// Parse quiet hours
 	if quietHoursStr := getEnv("VOICE_NOTIFY_QUIET_HOURS", ""); quietHoursStr != "" {
 		nm.quietHours = parseQuietHours(quietHoursStr)
+		if nm.quietHours != nil {
+			debugLog("Quiet hours configured: %s to %s", 
+				nm.quietHours.Start.Format("15:04"), 
+				nm.quietHours.End.Format("15:04"))
+		}
 	}
+
+	debugLog("NotificationManager initialized - AutoNotify: %v, MinTaskDuration: %v", 
+		nm.autoNotify, nm.minTaskDuration)
 
 	return nm
 }
@@ -46,6 +55,7 @@ func (nm *NotificationManager) IsAutoNotifyEnabled() bool {
 // ShouldNotify determines if a notification should be sent based on task duration
 func (nm *NotificationManager) ShouldNotify(taskDuration time.Duration) bool {
 	if !nm.autoNotify {
+		debugLog("Auto-notify disabled, skipping notification")
 		return false
 	}
 	return taskDuration >= nm.minTaskDuration
@@ -63,11 +73,19 @@ func (nm *NotificationManager) IsQuietHours() bool {
 	// Handle quiet hours that span midnight
 	if nm.quietHours.End.Before(nm.quietHours.Start) {
 		// Quiet hours span midnight (e.g., 22:00 - 07:00)
-		return currentTime.After(nm.quietHours.Start) || currentTime.Before(nm.quietHours.End)
+		isQuiet := currentTime.After(nm.quietHours.Start) || currentTime.Before(nm.quietHours.End)
+		debugLog("Quiet hours check (spans midnight): Current=%s, Start=%s, End=%s, IsQuiet=%v",
+			currentTime.Format("15:04"), nm.quietHours.Start.Format("15:04"), 
+			nm.quietHours.End.Format("15:04"), isQuiet)
+		return isQuiet
 	}
 	
 	// Normal quiet hours (e.g., 23:00 - 06:00)
-	return currentTime.After(nm.quietHours.Start) && currentTime.Before(nm.quietHours.End)
+	isQuiet := currentTime.After(nm.quietHours.Start) && currentTime.Before(nm.quietHours.End)
+	debugLog("Quiet hours check: Current=%s, Start=%s, End=%s, IsQuiet=%v",
+		currentTime.Format("15:04"), nm.quietHours.Start.Format("15:04"), 
+		nm.quietHours.End.Format("15:04"), isQuiet)
+	return isQuiet
 }
 
 // RecordNotification records a notification for rate limiting
@@ -85,6 +103,7 @@ func (nm *NotificationManager) CanNotify(priority string) bool {
 
 	lastTime, exists := nm.lastNotif[priority]
 	if !exists {
+		debugLog("No previous notification for priority '%s', allowing notification", priority)
 		return true
 	}
 
@@ -101,7 +120,12 @@ func (nm *NotificationManager) CanNotify(priority string) bool {
 		minInterval = 30 * time.Second
 	}
 
-	return time.Since(lastTime) >= minInterval
+	elapsed := time.Since(lastTime)
+	canNotify := elapsed >= minInterval
+	debugLog("Rate limit check - Priority: %s, MinInterval: %v, Elapsed: %v, CanNotify: %v", 
+		priority, minInterval, elapsed, canNotify)
+	
+	return canNotify
 }
 
 // parseMinTaskDuration parses the minimum task duration from environment
@@ -141,17 +165,23 @@ func parseQuietHours(quietHoursStr string) *QuietHours {
 func parseTime(timeStr string) (time.Time, error) {
 	parts := strings.Split(timeStr, ":")
 	if len(parts) != 2 {
-		return time.Time{}, nil
+		return time.Time{}, fmt.Errorf("invalid time format: %s", timeStr)
 	}
 
 	hour, err := strconv.Atoi(parts[0])
-	if err != nil || hour < 0 || hour > 23 {
+	if err != nil {
 		return time.Time{}, err
+	}
+	if hour < 0 || hour > 23 {
+		return time.Time{}, fmt.Errorf("invalid hour: %d", hour)
 	}
 
 	minute, err := strconv.Atoi(parts[1])
-	if err != nil || minute < 0 || minute > 59 {
+	if err != nil {
 		return time.Time{}, err
+	}
+	if minute < 0 || minute > 59 {
+		return time.Time{}, fmt.Errorf("invalid minute: %d", minute)
 	}
 
 	return time.Date(0, 1, 1, hour, minute, 0, 0, time.Local), nil

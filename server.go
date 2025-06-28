@@ -52,9 +52,15 @@ func CreateVoiceNotifyServer() (*server.MCPServer, error) {
 
 // handleNotifyVoice handles the notify_voice tool calls
 func handleNotifyVoice(ctx context.Context, request mcp.CallToolRequest, voiceSystem *VoiceSystem, langDetect *LanguageDetector, notifier *NotificationManager) (*mcp.CallToolResult, error) {
+	defer debugMeasureTime("handleNotifyVoice")()
+	
+	// Log incoming request
+	debugLogRequest("notify_voice", request.Params)
+	
 	// Get required message parameter
 	message, err := request.RequireString("message")
 	if err != nil {
+		debugLog("Missing required parameter 'message': %v", err)
 		return mcp.NewToolResultError("message is required"), nil
 	}
 
@@ -68,13 +74,16 @@ func handleNotifyVoice(ctx context.Context, request mcp.CallToolRequest, voiceSy
 
 	// Check quiet hours
 	if notifier.IsQuietHours() {
+		debugLog("Notification skipped due to quiet hours")
 		return mcp.NewToolResultText("Notification skipped: quiet hours active"), nil
 	}
 
 	// Check rate limiting
 	if !notifier.CanNotify(priority) {
+		debugLogRateLimit(priority, false, "rate limit exceeded")
 		return mcp.NewToolResultText("Notification skipped: rate limit active"), nil
 	}
+	debugLogRateLimit(priority, true, "within rate limit")
 
 	// Auto-detect language if enabled and not specified
 	if language == "" && langDetect.IsAutoDetectEnabled() {
@@ -88,8 +97,10 @@ func handleNotifyVoice(ctx context.Context, request mcp.CallToolRequest, voiceSy
 	selectedVoice := voiceSystem.SelectVoice(voice, language)
 
 	// Execute voice notification
+	debugLog("Executing voice notification - Voice: %s, Priority: %s", selectedVoice, priority)
 	err = voiceSystem.Speak(message, selectedVoice, priority)
 	if err != nil {
+		debugLog("Voice notification failed: %v", err)
 		return mcp.NewToolResultErrorFromErr("Failed to speak", err), nil
 	}
 
