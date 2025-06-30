@@ -17,13 +17,8 @@ test:
 
 # Run linter
 lint:
-	@if command -v $(GOLANGCI_LINT) > /dev/null; then \
-		$(GOLANGCI_LINT) run; \
-	else \
-		echo "golangci-lint is not installed. Installing..."; \
-		go install github.com/golangci/golangci-lint/cmd/golangci-lint@latest; \
-		$(GOLANGCI_LINT) run; \
-	fi
+	@echo "Running golangci-lint..."
+	@go run github.com/golangci/golangci-lint/cmd/golangci-lint run
 
 # Clean build artifacts
 clean:
