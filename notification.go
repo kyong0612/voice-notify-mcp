@@ -35,13 +35,13 @@ func NewNotificationManager() *NotificationManager {
 	if quietHoursStr := getEnv("VOICE_NOTIFY_QUIET_HOURS", ""); quietHoursStr != "" {
 		nm.quietHours = parseQuietHours(quietHoursStr)
 		if nm.quietHours != nil {
-			debugLog("Quiet hours configured: %s to %s", 
-				nm.quietHours.Start.Format("15:04"), 
+			debugLog("Quiet hours configured: %s to %s",
+				nm.quietHours.Start.Format("15:04"),
 				nm.quietHours.End.Format("15:04"))
 		}
 	}
 
-	debugLog("NotificationManager initialized - AutoNotify: %v, MinTaskDuration: %v", 
+	debugLog("NotificationManager initialized - AutoNotify: %v, MinTaskDuration: %v",
 		nm.autoNotify, nm.minTaskDuration)
 
 	return nm
@@ -69,21 +69,21 @@ func (nm *NotificationManager) IsQuietHours() bool {
 
 	now := time.Now()
 	currentTime := time.Date(0, 1, 1, now.Hour(), now.Minute(), 0, 0, time.Local)
-	
+
 	// Handle quiet hours that span midnight
 	if nm.quietHours.End.Before(nm.quietHours.Start) {
 		// Quiet hours span midnight (e.g., 22:00 - 07:00)
 		isQuiet := currentTime.After(nm.quietHours.Start) || currentTime.Before(nm.quietHours.End)
 		debugLog("Quiet hours check (spans midnight): Current=%s, Start=%s, End=%s, IsQuiet=%v",
-			currentTime.Format("15:04"), nm.quietHours.Start.Format("15:04"), 
+			currentTime.Format("15:04"), nm.quietHours.Start.Format("15:04"),
 			nm.quietHours.End.Format("15:04"), isQuiet)
 		return isQuiet
 	}
-	
+
 	// Normal quiet hours (e.g., 23:00 - 06:00)
 	isQuiet := currentTime.After(nm.quietHours.Start) && currentTime.Before(nm.quietHours.End)
 	debugLog("Quiet hours check: Current=%s, Start=%s, End=%s, IsQuiet=%v",
-		currentTime.Format("15:04"), nm.quietHours.Start.Format("15:04"), 
+		currentTime.Format("15:04"), nm.quietHours.Start.Format("15:04"),
 		nm.quietHours.End.Format("15:04"), isQuiet)
 	return isQuiet
 }
@@ -92,7 +92,7 @@ func (nm *NotificationManager) IsQuietHours() bool {
 func (nm *NotificationManager) RecordNotification(priority string) {
 	nm.mu.Lock()
 	defer nm.mu.Unlock()
-	
+
 	nm.lastNotif[priority] = time.Now()
 }
 
@@ -122,9 +122,9 @@ func (nm *NotificationManager) CanNotify(priority string) bool {
 
 	elapsed := time.Since(lastTime)
 	canNotify := elapsed >= minInterval
-	debugLog("Rate limit check - Priority: %s, MinInterval: %v, Elapsed: %v, CanNotify: %v", 
+	debugLog("Rate limit check - Priority: %s, MinInterval: %v, Elapsed: %v, CanNotify: %v",
 		priority, minInterval, elapsed, canNotify)
-	
+
 	return canNotify
 }
 

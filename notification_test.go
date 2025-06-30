@@ -124,20 +124,20 @@ func TestParseQuietHours(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			result := parseQuietHours(tt.input)
-			
+
 			if tt.shouldParse {
 				if result == nil {
 					t.Errorf("parseQuietHours(%q) = nil, expected valid QuietHours", tt.input)
 					return
 				}
-				
+
 				if result.Start.Hour() != tt.startHour || result.Start.Minute() != tt.startMin {
-					t.Errorf("Start time: got %02d:%02d, want %02d:%02d", 
+					t.Errorf("Start time: got %02d:%02d, want %02d:%02d",
 						result.Start.Hour(), result.Start.Minute(), tt.startHour, tt.startMin)
 				}
-				
+
 				if result.End.Hour() != tt.endHour || result.End.Minute() != tt.endMin {
-					t.Errorf("End time: got %02d:%02d, want %02d:%02d", 
+					t.Errorf("End time: got %02d:%02d, want %02d:%02d",
 						result.End.Hour(), result.End.Minute(), tt.endHour, tt.endMin)
 				}
 			} else {
@@ -153,10 +153,10 @@ func TestParseQuietHours(t *testing.T) {
 func TestNotificationManager_IsQuietHours(t *testing.T) {
 	// Test cases with fixed times
 	tests := []struct {
-		name         string
-		quietHours   *QuietHours
-		testTime     time.Time
-		expectQuiet  bool
+		name        string
+		quietHours  *QuietHours
+		testTime    time.Time
+		expectQuiet bool
 	}{
 		{
 			name: "within_quiet_hours_night",
@@ -204,10 +204,10 @@ func TestNotificationManager_IsQuietHours(t *testing.T) {
 			expectQuiet: false,
 		},
 		{
-			name:         "no_quiet_hours",
-			quietHours:   nil,
-			testTime:     time.Date(2024, 1, 1, 3, 0, 0, 0, time.Local),
-			expectQuiet:  false,
+			name:        "no_quiet_hours",
+			quietHours:  nil,
+			testTime:    time.Date(2024, 1, 1, 3, 0, 0, 0, time.Local),
+			expectQuiet: false,
 		},
 	}
 
@@ -217,7 +217,7 @@ func TestNotificationManager_IsQuietHours(t *testing.T) {
 				quietHours: tt.quietHours,
 				lastNotif:  make(map[string]time.Time),
 			}
-			
+
 			// Mock time for testing
 			// In a real implementation, you might inject a time function
 			// For this test, we'll just check the logic
@@ -298,11 +298,11 @@ func TestGetEnvHelpers(t *testing.T) {
 		// Test with existing env var
 		os.Setenv("TEST_ENV_VAR", "test_value")
 		defer os.Unsetenv("TEST_ENV_VAR")
-		
+
 		if got := getEnv("TEST_ENV_VAR", "default"); got != "test_value" {
 			t.Errorf("getEnv() = %q, want %q", got, "test_value")
 		}
-		
+
 		// Test with non-existing env var
 		if got := getEnv("NON_EXISTING_VAR", "default"); got != "default" {
 			t.Errorf("getEnv() = %q, want %q", got, "default")
@@ -327,13 +327,13 @@ func TestGetEnvHelpers(t *testing.T) {
 				os.Setenv("TEST_BOOL_VAR", tt.value)
 				defer os.Unsetenv("TEST_BOOL_VAR")
 			}
-			
+
 			// Test with false default
 			if got := getEnvBool("TEST_BOOL_VAR", false); got != tt.expected {
 				t.Errorf("getEnvBool(%q, false) = %v, want %v", tt.value, got, tt.expected)
 			}
 		}
-		
+
 		// Test default value when env var not set
 		if got := getEnvBool("NON_EXISTING_BOOL", true); got != true {
 			t.Errorf("getEnvBool() should return default value when env var not set")
