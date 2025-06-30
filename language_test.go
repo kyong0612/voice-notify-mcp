@@ -27,7 +27,7 @@ func TestLanguageDetector_DetectLanguage(t *testing.T) {
 			text:     "The quick brown fox jumps over the lazy dog",
 			expected: "en",
 		},
-		
+
 		// Japanese tests
 		{
 			name:     "japanese_hiragana",
@@ -201,46 +201,46 @@ func TestLanguageDetector_AutoDetectDisabled(t *testing.T) {
 // TestContainsAny tests the helper function
 func TestContainsAny(t *testing.T) {
 	tests := []struct {
-		name      string
-		text      string
-		patterns  []string
-		expected  bool
+		name     string
+		text     string
+		patterns []string
+		expected bool
 	}{
 		{
-			name:      "contains_pattern",
-			text:      "hello world",
-			patterns:  []string{"world", "test"},
-			expected:  true,
+			name:     "contains_pattern",
+			text:     "hello world",
+			patterns: []string{"world", "test"},
+			expected: true,
 		},
 		{
-			name:      "contains_multiple",
-			text:      "the quick brown fox",
-			patterns:  []string{"quick", "brown"},
-			expected:  true,
+			name:     "contains_multiple",
+			text:     "the quick brown fox",
+			patterns: []string{"quick", "brown"},
+			expected: true,
 		},
 		{
-			name:      "contains_none",
-			text:      "hello world",
-			patterns:  []string{"foo", "bar"},
-			expected:  false,
+			name:     "contains_none",
+			text:     "hello world",
+			patterns: []string{"foo", "bar"},
+			expected: false,
 		},
 		{
-			name:      "empty_patterns",
-			text:      "hello world",
-			patterns:  []string{},
-			expected:  false,
+			name:     "empty_patterns",
+			text:     "hello world",
+			patterns: []string{},
+			expected: false,
 		},
 		{
-			name:      "empty_text",
-			text:      "",
-			patterns:  []string{"test"},
-			expected:  false,
+			name:     "empty_text",
+			text:     "",
+			patterns: []string{"test"},
+			expected: false,
 		},
 		{
-			name:      "case_sensitive",
-			text:      "Hello World",
-			patterns:  []string{"hello"}, // lowercase
-			expected:  false,
+			name:     "case_sensitive",
+			text:     "Hello World",
+			patterns: []string{"hello"}, // lowercase
+			expected: false,
 		},
 	}
 
@@ -257,25 +257,25 @@ func TestContainsAny(t *testing.T) {
 // TestCharacterTypeDetection tests individual character detection functions
 func TestCharacterTypeDetection(t *testing.T) {
 	tests := []struct {
-		name     string
-		char     rune
-		isLatin  bool
+		name       string
+		char       rune
+		isLatin    bool
 		isJapanese bool
-		isChinese bool
-		isKorean bool
+		isChinese  bool
+		isKorean   bool
 		isCyrillic bool
-		isArabic bool
-		isHebrew bool
+		isArabic   bool
+		isHebrew   bool
 	}{
 		{
-			name:     "latin_lowercase",
-			char:     'a',
-			isLatin:  true,
+			name:    "latin_lowercase",
+			char:    'a',
+			isLatin: true,
 		},
 		{
-			name:     "latin_uppercase",
-			char:     'Z',
-			isLatin:  true,
+			name:    "latin_uppercase",
+			char:    'Z',
+			isLatin: true,
 		},
 		{
 			name:       "japanese_hiragana",

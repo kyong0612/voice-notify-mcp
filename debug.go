@@ -18,7 +18,7 @@ var (
 func init() {
 	// Check if debug mode is enabled
 	debugMode = getEnvBool("VOICE_NOTIFY_DEBUG", false)
-	
+
 	if debugMode {
 		// Set up debug logger with more detailed format
 		debugLogger = log.New(os.Stderr, "[DEBUG] ", log.Ldate|log.Ltime|log.Lmicroseconds|log.Lshortfile)
@@ -30,18 +30,18 @@ func debugLog(format string, args ...interface{}) {
 	if !debugMode || debugLogger == nil {
 		return
 	}
-	
+
 	// Get caller information
 	_, file, line, ok := runtime.Caller(1)
 	if ok {
 		// Extract just the filename
 		parts := strings.Split(file, "/")
 		file = parts[len(parts)-1]
-		
+
 		// Prepend file:line to the message
 		format = fmt.Sprintf("[%s:%d] %s", file, line, format)
 	}
-	
+
 	debugLogger.Printf(format, args...)
 }
 
@@ -50,7 +50,7 @@ func debugLogRequest(requestType string, data interface{}) {
 	if !debugMode {
 		return
 	}
-	
+
 	debugLog("MCP Request - Type: %s, Data: %+v", requestType, data)
 }
 
@@ -59,7 +59,7 @@ func debugLogResponse(responseType string, data interface{}, err error) {
 	if !debugMode {
 		return
 	}
-	
+
 	if err != nil {
 		debugLog("MCP Response - Type: %s, Error: %v", responseType, err)
 	} else {
@@ -72,7 +72,7 @@ func debugLogVoiceCommand(command string, args []string, output string, err erro
 	if !debugMode {
 		return
 	}
-	
+
 	debugLog("Voice Command - Cmd: %s, Args: %v", command, args)
 	if output != "" {
 		debugLog("Voice Output: %s", output)
@@ -87,7 +87,7 @@ func debugLogEnvironment() {
 	if !debugMode {
 		return
 	}
-	
+
 	debugLog("=== Environment Configuration ===")
 	debugLog("VOICE_NOTIFY_DEBUG: %v", debugMode)
 	debugLog("VOICE_NOTIFY_DEFAULT_VOICE: %s", getEnv("VOICE_NOTIFY_DEFAULT_VOICE", ""))
@@ -104,10 +104,10 @@ func debugMeasureTime(operation string) func() {
 	if !debugMode {
 		return func() {}
 	}
-	
+
 	start := time.Now()
 	debugLog("Starting operation: %s", operation)
-	
+
 	return func() {
 		duration := time.Since(start)
 		debugLog("Completed operation: %s (took %v)", operation, duration)
@@ -119,8 +119,8 @@ func debugLogLanguageDetection(text string, detectedLang string, confidence floa
 	if !debugMode {
 		return
 	}
-	
-	debugLog("Language Detection - Text: '%s', Detected: %s, Confidence: %.2f", 
+
+	debugLog("Language Detection - Text: '%s', Detected: %s, Confidence: %.2f",
 		truncateString(text, 50), detectedLang, confidence)
 }
 
@@ -129,7 +129,7 @@ func debugLogVoiceSelection(requestedVoice, language, selectedVoice string, fall
 	if !debugMode {
 		return
 	}
-	
+
 	debugLog("Voice Selection - Requested: %s, Language: %s, Selected: %s, Fallback: %v",
 		requestedVoice, language, selectedVoice, fallback)
 }
@@ -139,7 +139,7 @@ func debugLogRateLimit(priority string, allowed bool, reason string) {
 	if !debugMode {
 		return
 	}
-	
+
 	debugLog("Rate Limit Check - Priority: %s, Allowed: %v, Reason: %s",
 		priority, allowed, reason)
 }

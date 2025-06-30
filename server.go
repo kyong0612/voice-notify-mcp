@@ -53,10 +53,10 @@ func CreateVoiceNotifyServer() (*server.MCPServer, error) {
 // handleNotifyVoice handles the notify_voice tool calls
 func handleNotifyVoice(ctx context.Context, request mcp.CallToolRequest, voiceSystem *VoiceSystem, langDetect *LanguageDetector, notifier *NotificationManager) (*mcp.CallToolResult, error) {
 	defer debugMeasureTime("handleNotifyVoice")()
-	
+
 	// Log incoming request
 	debugLogRequest("notify_voice", request.Params)
-	
+
 	// Get required message parameter
 	message, err := request.RequireString("message")
 	if err != nil {

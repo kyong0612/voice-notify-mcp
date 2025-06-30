@@ -102,43 +102,43 @@ func (ld *LanguageDetector) DetectLanguage(text string) string {
 
 	// Check for common language patterns
 	lowerText := strings.ToLower(text)
-	
+
 	// Check for more specific indicators first
 	// Spanish indicators - check special characters first
 	if containsAny(lowerText, []string{"ñ", "¿", "¡", "á", "é", "í", "ó", "ú"}) && containsAny(lowerText, []string{" el ", " la ", " los ", " las "}) {
 		debugLogLanguageDetection(text, "es", 0.8)
 		return "es"
 	}
-	if containsAny(lowerText, []string{"ñ", "¿", "¡"}) || 
+	if containsAny(lowerText, []string{"ñ", "¿", "¡"}) ||
 		(containsAny(lowerText, []string{" el ", " los ", " las ", " del "}) && !containsAny(lowerText, []string{" le ", " les ", " du ", " des "})) {
 		debugLogLanguageDetection(text, "es", 0.8)
 		return "es"
 	}
-	
+
 	// Portuguese indicators - check special characters first
-	if containsAny(lowerText, []string{"ã", "õ", "ção"}) || 
-		(containsAny(lowerText, []string{" o ", " os ", " as ", " do ", " da ", " na "}) && 
-			containsAny(lowerText, []string{"á", "é", "ê", "ó", "ô"}) && 
+	if containsAny(lowerText, []string{"ã", "õ", "ção"}) ||
+		(containsAny(lowerText, []string{" o ", " os ", " as ", " do ", " da ", " na "}) &&
+			containsAny(lowerText, []string{"á", "é", "ê", "ó", "ô"}) &&
 			!containsAny(lowerText, []string{" el ", " la "})) {
 		debugLogLanguageDetection(text, "pt", 0.8)
 		return "pt"
 	}
-	
+
 	// German indicators
-	if containsAny(lowerText, []string{"ä", "ö", "ü", "ß"}) || 
+	if containsAny(lowerText, []string{"ä", "ö", "ü", "ß"}) ||
 		containsAny(lowerText, []string{" der ", " die ", " das ", " den ", " dem "}) {
 		debugLogLanguageDetection(text, "de", 0.8)
 		return "de"
 	}
-	
+
 	// Italian indicators - more specific patterns
 	if containsAny(lowerText, []string{" il ", " lo ", " gli ", " della ", " nel ", " è "}) {
 		debugLogLanguageDetection(text, "it", 0.8)
 		return "it"
 	}
-	
+
 	// French indicators - check last to avoid conflicts
-	if containsAny(lowerText, []string{"ç", "à", "è", "é", "ê", "ù"}) || 
+	if containsAny(lowerText, []string{"ç", "à", "è", "é", "ê", "ù"}) ||
 		(containsAny(lowerText, []string{" le ", " les ", " du ", " des ", " sur ", " est "}) && !containsAny(lowerText, []string{" el ", " está "})) {
 		debugLogLanguageDetection(text, "fr", 0.8)
 		return "fr"

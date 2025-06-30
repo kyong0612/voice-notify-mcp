@@ -96,7 +96,7 @@ func TestVoiceSystem_SelectVoice(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			result := vs.SelectVoice(tt.requestedVoice, tt.language)
-			
+
 			// Special case for language match tests where multiple voices are acceptable
 			if tt.name == "specific_voice_unavailable" {
 				// Accept any English voice

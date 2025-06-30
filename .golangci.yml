@@ -1,0 +1,152 @@
+# This file configures golangci-lint
+# See https://golangci-lint.run/usage/configuration/
+
+run:
+  timeout: 5m
+  tests: true
+  # default is true. Enables skipping of directories:
+  #   vendor$, third_party$, testdata$, examples$, Godeps$, builtin$
+  skip-dirs-use-default: true
+  # Tool directives for better analysis
+  build-tags:
+    - integration
+  modules-download-mode: readonly
+  allow-parallel-runners: true
+
+linters:
+  enable:
+    - bodyclose
+    - dogsled
+    - dupl
+    - errcheck
+    - exportloopref
+    - exhaustive
+    - gochecknoinits
+    - goconst
+    - gocritic
+    - gocyclo
+    - gofmt
+    - goimports
+    - goprintffuncname
+    - gosec
+    - gosimple
+    - govet
+    - ineffassign
+    - lll
+    - misspell
+    - nakedret
+    - noctx
+    - nolintlint
+    - staticcheck
+    - stylecheck
+    - typecheck
+    - unconvert
+    - unparam
+    - unused
+    - whitespace
+    - revive
+
+  # don't enable:
+  # - gochecknoglobals
+  # - gocognit
+  # - godot
+  # - godox
+  # - goerr113
+  # - nestif
+  # - prealloc
+  # - testpackage
+  # - wsl
+
+linters-settings:
+  dupl:
+    threshold: 100
+  exhaustive:
+    default-signifies-exhaustive: false
+  gocyclo:
+    min-complexity: 15
+  goimports:
+    local-prefixes: github.com/kyong0612/voice-notify-mcp
+  goconst:
+    min-len: 2
+    min-occurrences: 2
+  gocritic:
+    enabled-tags:
+      - diagnostic
+      - experimental
+      - opinionated
+      - performance
+      - style
+    disabled-checks:
+      - dupImport # https://github.com/go-critic/go-critic/issues/845
+      - ifElseChain
+      - octalLiteral
+      - whyNoLint
+      - wrapperFunc
+  gosec:
+    excludes:
+      - G204 # Subprocess launched with variable (we need this for say command)
+  lll:
+    line-length: 140
+  misspell:
+    locale: US
+  nolintlint:
+    allow-leading-space: true # don't require machine-readable nolint directives (i.e. with no leading space)
+    allow-unused: false # report any unused nolint directives
+    require-explanation: false # don't require an explanation for nolint directives
+    require-specific: false # don't require nolint directives to be specific about which linter is being skipped
+  revive:
+    confidence: 0
+
+issues:
+  # Excluding configuration per-path, per-linter, per-text and per-source
+  exclude-rules:
+    - path: _test\.go
+      linters:
+        - gomnd
+        - dupl
+        - gosec
+
+    # Exclude some linters from running on tests files.
+    - path: _test\.go
+      linters:
+        - gocyclo
+        - errcheck
+        - dupl
+        - gosec
+
+    # Exclude known linters from partially hard-vendored code,
+    # which is impossible to exclude via "nolint" comments.
+    - path: debug\.go
+      text: "SA1019:"
+      linters:
+        - staticcheck
+
+    # Exclude some staticcheck messages
+    - linters:
+        - staticcheck
+      text: "SA1019:"
+
+    # Tool directive rules
+    - path: "(.*)?_gen\\.go"
+      linters:
+        - gocritic
+        - gocyclo
+        - dupl
+    
+    - source: "^//go:generate "
+      linters:
+        - lll
+
+    - source: "^//nolint:"
+      linters:
+        - nolintlint
+
+  # Fix found issues automatically
+  fix: false
+  # Maximum count of issues with the same text. Set to 0 to disable
+  max-same-issues: 0
+  # Tool directive: show all issues
+  exclude-use-default: false
+
+service:
+  golangci-lint-version: 1.62.0 # use the fixed version to not introduce new linters unexpectedly

@@ -1,0 +1,80 @@
+name: CI
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pull-requests: read
+  security-events: write
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  # Quick checks that should fail fast
+  quick-checks:
+    name: Quick Checks
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      
+      - uses: actions/setup-go@v5
+        with:
+          go-version-file: 'go.mod'
+      
+      - name: Check go mod tidy
+        run: |
+          go mod tidy
+          if [ -n "$(git status --porcelain)" ]; then
+            echo "go mod tidy resulted in changes:"
+            git diff
+            exit 1
+          fi
+      
+      - name: Check formatting
+        run: |
+          if [ "$(gofmt -s -l . | wc -l)" -gt 0 ]; then
+            echo "The following files are not formatted correctly:"
+            gofmt -s -l .
+            exit 1
+          fi
+
+  # Call other workflows
+  lint:
+    name: Lint
+    needs: quick-checks
+    uses: ./.github/workflows/lint.yml
+
+  test:
+    name: Test
+    needs: quick-checks
+    uses: ./.github/workflows/test.yml
+
+  build:
+    name: Build
+    needs: [lint, test]
+    uses: ./.github/workflows/build.yml
+
+  # Summary job to ensure all checks pass
+  ci-success:
+    name: CI Success
+    if: ${{ always() }}
+    needs: [quick-checks, lint, test, build]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check if all jobs succeeded
+        run: |
+          if [[ "${{ needs.quick-checks.result }}" != "success" || \
+                "${{ needs.lint.result }}" != "success" || \
+                "${{ needs.test.result }}" != "success" || \
+                "${{ needs.build.result }}" != "success" ]]; then
+            echo "One or more jobs failed"
+            exit 1
+          fi
+          echo "All CI checks passed!"

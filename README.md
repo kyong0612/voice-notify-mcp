@@ -1,5 +1,12 @@
 # Voice Notify MCP Server
 
+[![CI](https://github.com/kyong0612/voice-notify-mcp/actions/workflows/ci.yml/badge.svg)](https://github.com/kyong0612/voice-notify-mcp/actions/workflows/ci.yml)
+[![Lint](https://github.com/kyong0612/voice-notify-mcp/actions/workflows/lint.yml/badge.svg)](https://github.com/kyong0612/voice-notify-mcp/actions/workflows/lint.yml)
+[![Test](https://github.com/kyong0612/voice-notify-mcp/actions/workflows/test.yml/badge.svg)](https://github.com/kyong0612/voice-notify-mcp/actions/workflows/test.yml)
+[![Build](https://github.com/kyong0612/voice-notify-mcp/actions/workflows/build.yml/badge.svg)](https://github.com/kyong0612/voice-notify-mcp/actions/workflows/build.yml)
+[![Go Report Card](https://goreportcard.com/badge/github.com/kyong0612/voice-notify-mcp)](https://goreportcard.com/report/github.com/kyong0612/voice-notify-mcp)
+[![License](https://img.shields.io/github/license/kyong0612/voice-notify-mcp)](LICENSE)
+
 A Model Context Protocol (MCP) server that enables AI assistants to send voice notifications on macOS. The AI can autonomously decide when to notify users about task completions, errors, or when attention is needed.
 
 ## Features

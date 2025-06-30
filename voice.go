@@ -30,17 +30,17 @@ func NewVoiceSystem() *VoiceSystem {
 		availableVoices: make(map[string]VoiceInfo),
 		defaultVoice:    getEnv("VOICE_NOTIFY_DEFAULT_VOICE", ""),
 	}
-	
+
 	// Load available voices
 	vs.refreshVoices()
-	
+
 	return vs
 }
 
 // refreshVoices updates the list of available voices
 func (vs *VoiceSystem) refreshVoices() error {
 	defer debugMeasureTime("refreshVoices")()
-	
+
 	vs.mu.Lock()
 	defer vs.mu.Unlock()
 
@@ -58,7 +58,7 @@ func (vs *VoiceSystem) refreshVoices() error {
 	vs.availableVoices = make(map[string]VoiceInfo)
 	debugLog("Parsing voice list output (%d bytes)", len(output))
 	lines := strings.Split(string(output), "\n")
-	
+
 	for _, line := range lines {
 		if line = strings.TrimSpace(line); line == "" {
 			continue
@@ -70,10 +70,10 @@ func (vs *VoiceSystem) refreshVoices() error {
 		if len(parts) >= 2 {
 			name := parts[0]
 			locale := parts[1]
-			
+
 			// Extract language code from locale
 			lang := strings.Split(locale, "_")[0]
-			
+
 			vs.availableVoices[name] = VoiceInfo{
 				Name:     name,
 				Language: lang,
@@ -130,15 +130,15 @@ func (vs *VoiceSystem) SelectVoice(requestedVoice, language string) string {
 func (vs *VoiceSystem) Speak(message, voice, priority string) error {
 	// Sanitize input to prevent command injection
 	message = sanitizeInput(message)
-	
+
 	// Build command arguments
 	args := []string{}
-	
+
 	// Add voice if specified
 	if voice != "" {
 		args = append(args, "-v", voice)
 	}
-	
+
 	// Adjust rate based on priority
 	switch priority {
 	case "high":
@@ -148,17 +148,17 @@ func (vs *VoiceSystem) Speak(message, voice, priority string) error {
 	default:
 		// Normal rate (default)
 	}
-	
+
 	// Add the message
 	args = append(args, message)
-	
+
 	// Execute command
 	cmd := exec.Command("say", args...)
-	
+
 	// Capture both stdout and stderr
 	var stderr bytes.Buffer
 	cmd.Stderr = &stderr
-	
+
 	debugLogVoiceCommand("say", args, "", nil)
 	err := cmd.Run()
 	if err != nil {
@@ -166,7 +166,7 @@ func (vs *VoiceSystem) Speak(message, voice, priority string) error {
 		debugLogVoiceCommand("say", args, "", fmt.Errorf("%s", errMsg))
 		return fmt.Errorf("say command failed: %w, stderr: %s", err, stderr.String())
 	}
-	
+
 	return nil
 }
 
@@ -184,7 +184,7 @@ func (vs *VoiceSystem) GetAvailableVoices() []VoiceInfo {
 	for _, voice := range vs.availableVoices {
 		voices = append(voices, voice)
 	}
-	
+
 	return voices
 }
 
@@ -193,7 +193,7 @@ func sanitizeInput(input string) string {
 	// Remove any characters that could be used for command injection
 	// Allow only safe characters
 	var sanitized strings.Builder
-	
+
 	for _, r := range input {
 		// Allow alphanumeric, common punctuation, and spaces
 		if (r >= 'a' && r <= 'z') || (r >= 'A' && r <= 'Z') ||
@@ -203,10 +203,10 @@ func sanitizeInput(input string) string {
 			(r >= 0x3040 && r <= 0x309F) || // Hiragana
 			(r >= 0x30A0 && r <= 0x30FF) || // Katakana
 			(r >= 0x4E00 && r <= 0x9FAF) || // CJK Unified Ideographs
-			(r >= 0xAC00 && r <= 0xD7AF) {  // Hangul
+			(r >= 0xAC00 && r <= 0xD7AF) { // Hangul
 			sanitized.WriteRune(r)
 		}
 	}
-	
+
 	return sanitized.String()
 }

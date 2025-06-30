@@ -1,3 +1,4 @@
+//go:build integration
 // +build integration
 
 package main
@@ -51,7 +52,7 @@ func TestIntegration_RateLimiting(t *testing.T) {
 
 	// Test rapid notifications
 	priorities := []string{"high", "normal", "low"}
-	
+
 	for _, priority := range priorities {
 		t.Run("rate_limit_"+priority, func(t *testing.T) {
 			// First notification should succeed
@@ -67,7 +68,7 @@ func TestIntegration_RateLimiting(t *testing.T) {
 
 			// Wait a bit (not full duration)
 			time.Sleep(2 * time.Second)
-			
+
 			// Should still be blocked
 			if notifier.CanNotify(priority) {
 				t.Errorf("%s notification should still be blocked", priority)
@@ -151,7 +152,7 @@ func (m *MockVoiceSystem) SelectVoice(requestedVoice, language string) string {
 			return requestedVoice
 		}
 	}
-	
+
 	if language != "" && m.Voices != nil {
 		for name, info := range m.Voices {
 			if info.Language == language {
@@ -159,7 +160,7 @@ func (m *MockVoiceSystem) SelectVoice(requestedVoice, language string) string {
 			}
 		}
 	}
-	
+
 	return "default"
 }
 
@@ -168,9 +169,9 @@ func TestWithMockVoice(t *testing.T) {
 	mock := &MockVoiceSystem{
 		SpeakCalls: make([]SpeakCall, 0),
 		Voices: map[string]VoiceInfo{
-			"Alex":     {Name: "Alex", Language: "en"},
-			"Kyoko":    {Name: "Kyoko", Language: "ja"},
-			"Amelie":   {Name: "Amelie", Language: "fr"},
+			"Alex":   {Name: "Alex", Language: "en"},
+			"Kyoko":  {Name: "Kyoko", Language: "ja"},
+			"Amelie": {Name: "Amelie", Language: "fr"},
 		},
 	}
 
