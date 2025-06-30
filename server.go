@@ -80,10 +80,10 @@ func handleNotifyVoice(ctx context.Context, request mcp.CallToolRequest, voiceSy
 
 	// Check rate limiting
 	if !notifier.CanNotify(priority) {
-		debugLogRateLimit(priority, false, "rate limit exceeded")
+		debugLogRateLimit(false, fmt.Sprintf("rate limit exceeded for priority: %s", priority))
 		return mcp.NewToolResultText("Notification skipped: rate limit active"), nil
 	}
-	debugLogRateLimit(priority, true, "within rate limit")
+	debugLogRateLimit(true, fmt.Sprintf("within rate limit for priority: %s", priority))
 
 	// Auto-detect language if enabled and not specified
 	if language == "" && langDetect.IsAutoDetectEnabled() {

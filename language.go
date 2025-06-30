@@ -70,33 +70,27 @@ func (ld *LanguageDetector) DetectLanguage(text string) string {
 
 	// Check for specific language indicators
 	if japanese > 0 {
-		confidence := float64(japanese) / float64(total)
-		debugLogLanguageDetection(text, "ja", confidence)
+		debugLogLanguageDetection(text, "ja", "Japanese characters detected")
 		return "ja"
 	}
 	if korean > 0 {
-		confidence := float64(korean) / float64(total)
-		debugLogLanguageDetection(text, "ko", confidence)
+		debugLogLanguageDetection(text, "ko", "Korean characters detected")
 		return "ko"
 	}
 	if chinese > total/3 { // Chinese needs more characters to be confident
-		confidence := float64(chinese) / float64(total)
-		debugLogLanguageDetection(text, "zh", confidence)
+		debugLogLanguageDetection(text, "zh", "Chinese characters detected")
 		return "zh"
 	}
 	if cyrillic > latin {
-		confidence := float64(cyrillic) / float64(total)
-		debugLogLanguageDetection(text, "ru", confidence)
+		debugLogLanguageDetection(text, "ru", "Cyrillic characters detected")
 		return "ru"
 	}
 	if arabic > latin {
-		confidence := float64(arabic) / float64(total)
-		debugLogLanguageDetection(text, "ar", confidence)
+		debugLogLanguageDetection(text, "ar", "Arabic characters detected")
 		return "ar"
 	}
 	if hebrew > latin {
-		confidence := float64(hebrew) / float64(total)
-		debugLogLanguageDetection(text, "he", confidence)
+		debugLogLanguageDetection(text, "he", "Hebrew characters detected")
 		return "he"
 	}
 
@@ -106,12 +100,12 @@ func (ld *LanguageDetector) DetectLanguage(text string) string {
 	// Check for more specific indicators first
 	// Spanish indicators - check special characters first
 	if containsAny(lowerText, []string{"ñ", "¿", "¡", "á", "é", "í", "ó", "ú"}) && containsAny(lowerText, []string{" el ", " la ", " los ", " las "}) {
-		debugLogLanguageDetection(text, "es", 0.8)
+		debugLogLanguageDetection(text, "es", "Spanish patterns detected")
 		return "es"
 	}
 	if containsAny(lowerText, []string{"ñ", "¿", "¡"}) ||
 		(containsAny(lowerText, []string{" el ", " los ", " las ", " del "}) && !containsAny(lowerText, []string{" le ", " les ", " du ", " des "})) {
-		debugLogLanguageDetection(text, "es", 0.8)
+		debugLogLanguageDetection(text, "es", "Spanish patterns detected")
 		return "es"
 	}
 
@@ -120,38 +114,37 @@ func (ld *LanguageDetector) DetectLanguage(text string) string {
 		(containsAny(lowerText, []string{" o ", " os ", " as ", " do ", " da ", " na "}) &&
 			containsAny(lowerText, []string{"á", "é", "ê", "ó", "ô"}) &&
 			!containsAny(lowerText, []string{" el ", " la "})) {
-		debugLogLanguageDetection(text, "pt", 0.8)
+		debugLogLanguageDetection(text, "pt", "Portuguese patterns detected")
 		return "pt"
 	}
 
 	// German indicators
 	if containsAny(lowerText, []string{"ä", "ö", "ü", "ß"}) ||
 		containsAny(lowerText, []string{" der ", " die ", " das ", " den ", " dem "}) {
-		debugLogLanguageDetection(text, "de", 0.8)
+		debugLogLanguageDetection(text, "de", "German patterns detected")
 		return "de"
 	}
 
 	// Italian indicators - more specific patterns
 	if containsAny(lowerText, []string{" il ", " lo ", " gli ", " della ", " nel ", " è "}) {
-		debugLogLanguageDetection(text, "it", 0.8)
+		debugLogLanguageDetection(text, "it", "Italian patterns detected")
 		return "it"
 	}
 
 	// French indicators - check last to avoid conflicts
 	if containsAny(lowerText, []string{"ç", "à", "è", "é", "ê", "ù"}) ||
 		(containsAny(lowerText, []string{" le ", " les ", " du ", " des ", " sur ", " est "}) && !containsAny(lowerText, []string{" el ", " está "})) {
-		debugLogLanguageDetection(text, "fr", 0.8)
+		debugLogLanguageDetection(text, "fr", "French patterns detected")
 		return "fr"
 	}
 
 	// Default to English for Latin script
 	if latin > total/2 {
-		confidence := float64(latin) / float64(total)
-		debugLogLanguageDetection(text, "en", confidence)
+		debugLogLanguageDetection(text, "en", "Latin script detected, defaulting to English")
 		return "en"
 	}
 
-	debugLogLanguageDetection(text, ld.defaultLanguage, 0.0)
+	debugLogLanguageDetection(text, ld.defaultLanguage, "No specific language detected, using default")
 	return ld.defaultLanguage
 }
 

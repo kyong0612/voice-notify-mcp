@@ -32,7 +32,7 @@ func NewVoiceSystem() *VoiceSystem {
 	}
 
 	// Load available voices
-	vs.refreshVoices()
+	_ = vs.refreshVoices() // Initial refresh, error is non-critical
 
 	return vs
 }
@@ -95,7 +95,7 @@ func (vs *VoiceSystem) SelectVoice(requestedVoice, language string) string {
 	// 1. If specific voice is requested and available, use it
 	if requestedVoice != "" {
 		if _, exists := vs.availableVoices[requestedVoice]; exists {
-			debugLogVoiceSelection(requestedVoice, language, requestedVoice, false)
+			debugLogVoiceSelection("requested", requestedVoice, "using requested voice")
 			return requestedVoice
 		}
 		debugLog("Requested voice '%s' not available", requestedVoice)
@@ -105,7 +105,7 @@ func (vs *VoiceSystem) SelectVoice(requestedVoice, language string) string {
 	if language != "" {
 		for name, info := range vs.availableVoices {
 			if info.Language == language {
-				debugLogVoiceSelection(requestedVoice, language, name, true)
+				debugLogVoiceSelection("language", name, fmt.Sprintf("matched language: %s", language))
 				return name
 			}
 		}
@@ -115,14 +115,14 @@ func (vs *VoiceSystem) SelectVoice(requestedVoice, language string) string {
 	// 3. Use default voice if set and available
 	if vs.defaultVoice != "" {
 		if _, exists := vs.availableVoices[vs.defaultVoice]; exists {
-			debugLogVoiceSelection(requestedVoice, language, vs.defaultVoice, true)
+			debugLogVoiceSelection("default", vs.defaultVoice, "using configured default voice")
 			return vs.defaultVoice
 		}
 		debugLog("Default voice '%s' not available", vs.defaultVoice)
 	}
 
 	// 4. Use system default (empty string means use system default)
-	debugLogVoiceSelection(requestedVoice, language, "", true)
+	debugLogVoiceSelection("fallback", "", "using system default voice")
 	return ""
 }
 
@@ -177,7 +177,9 @@ func (vs *VoiceSystem) GetAvailableVoices() []VoiceInfo {
 
 	// Refresh if data is older than 5 minutes
 	if time.Since(vs.lastUpdate) > 5*time.Minute {
-		go vs.refreshVoices()
+		go func() {
+			_ = vs.refreshVoices() // Background refresh, error is non-critical
+		}()
 	}
 
 	voices := make([]VoiceInfo, 0, len(vs.availableVoices))
