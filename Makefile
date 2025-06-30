@@ -1,10 +1,11 @@
-.PHONY: test build clean run help
+.PHONY: test build clean run lint help
 
 # Variables
 BINARY_NAME=voice-notify-mcp
+GOLANGCI_LINT=golangci-lint
 
 # Default target
-all: test build
+all: lint test build
 
 # Build the binary
 build:
@@ -13,6 +14,16 @@ build:
 # Run tests
 test:
 	go test -v ./...
+
+# Run linter
+lint:
+	@if command -v $(GOLANGCI_LINT) > /dev/null; then \
+		$(GOLANGCI_LINT) run; \
+	else \
+		echo "golangci-lint is not installed. Installing..."; \
+		go install github.com/golangci/golangci-lint/cmd/golangci-lint@latest; \
+		$(GOLANGCI_LINT) run; \
+	fi
 
 # Clean build artifacts
 clean:
@@ -26,6 +37,7 @@ run: build
 # Display help
 help:
 	@echo "Available targets:"
+	@echo "  lint   - Run golangci-lint"
 	@echo "  test   - Run tests"
 	@echo "  build  - Build the binary"
 	@echo "  clean  - Remove build artifacts"
